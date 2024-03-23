@@ -44,7 +44,7 @@ def load_show_mnist( ):
         
     st.pyplot(fig)
 
-    return(trainloader,testloader,trainset,testset)
+    return(trainloader,testloader,trainset,testset,MEAN_MNIST,STD_MNIST)
 
 
 def load_show_cifar10():
@@ -85,9 +85,49 @@ def load_show_cifar10():
         axes[i].imshow(torch.permute(denorm(trainset[i][0]), (1, 2, 0)), cmap='gray' )
         
     st.pyplot(fig)
-    return(trainloader,testloader,trainset,testset)
+    return(trainloader,testloader,trainset,testset,[-0.4915/0.2470, -0.4823/0.2435, -0.4468/0.2616],[1/0.2470, 1/0.2435, 1/0.2616])
 
 
+def afficher_page_accueil():
+    
+    
+    st.title("Bienvenue dans notre projet de modèle génératif d'image")
+    st.write(' Nous explorerons le modèle Pixel CNN sur les jeux de données MNIST et CIFAR-10.')
 
+    # Ajoutez d'autres éléments de la page d'accueil, tels que des images explicatives, etc.
+    # ...
+
+def afficher_choix_jeux_de_donnees():
+    global trainloader, testloader, trainset, testset, mean, std,dataset
+
+    st.title('Jeux de données et visualisation')
+    st.write(' vous pouvez choisir le jeu de données à explorer.')
+
+    st.title('Choix du jeu de données et affichage d\'images')
+
+    # Sélection du jeu de données
+    dataset = st.radio('Choisissez un jeu de données :', ('MNIST', 'CIFAR-10'))
+
+    if dataset == 'MNIST':
+        st.write('Chargement du jeu de données MNIST...')
+        trainloader,testloader,trainset,testset,mean,std = load_show_mnist()
+
+    elif dataset == 'CIFAR-10':
+        st.write('Chargement du jeu de données CIFAR-10...')
+        trainloader,testloader,trainset,testset,mean,std = load_show_cifar10()
+    
+def afficher_page_modele():
+    global trainloader, testloader, trainset, testset, mean, std,dataset
+    
+    st.title('Pixel CNN')
+       
+    # Afficher les valeurs des variables globales
+    st.write(f'Vous avez choisi le jeu de données {dataset}')
+    st.write(f"mean: {mean}")
+    st.write(f"std: {std}")
+
+    st.write('Dans cette section, vous pouvez entraîner un modèle génératif cnnpixel ')
+    # Ajoutez le code pour l'entraînement du modèle en utilisant trainloader, testloader, trainset, testset, mean et std
+    
 
 

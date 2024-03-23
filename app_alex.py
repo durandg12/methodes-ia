@@ -1,27 +1,32 @@
-from util_alex import  load_show_mnist, load_show_cifar10
+from util_alex import  load_show_mnist, load_show_cifar10, afficher_page_accueil, afficher_choix_jeux_de_donnees, afficher_page_modele
 import streamlit as st
 import numpy as np
 
+
+
 def main() :
+    # Initialisation des variables globales
+    trainloader = None
+    testloader = None
+    trainset = None
+    testset = None
+    mean = None
+    std = None
+    dataset = None
+    st.sidebar.title('Navigation')
+    # Ajoutez les différentes sections de votre application à la barre latérale
+    section = st.sidebar.radio('Sections', ('Accueil',  'Modèle'))
 
-    st.title('Choix du jeu de données et affichage d\'images')
+    if section == 'Accueil':
+        afficher_page_accueil()
+        afficher_choix_jeux_de_donnees()
 
-    # Sélection du jeu de données
-    dataset = st.radio('Choisissez un jeu de données :', ('MNIST', 'CIFAR-10'))
+    elif section == 'Modèle':
+        afficher_page_modele()
 
-    if dataset == 'MNIST':
-        st.write('Chargement du jeu de données MNIST...')
-        trainloader,testloader,trainset,testset = load_show_mnist()
-
-    elif dataset == 'CIFAR-10':
-        st.write('Chargement du jeu de données CIFAR-10...')
-        trainloader,testloader,trainset,testset= load_show_cifar10()
-        
-
-
-    # Bouton pour quitter l'application
-    if st.button('Quitter'):
-        st.stop()
+    
 
 if __name__ == "__main__":
     main()
+
+        

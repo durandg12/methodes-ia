@@ -82,7 +82,7 @@ def load_show_cifar10():
     #affiche les trois premières images
     fig, axes = plt.subplots(1, 3, figsize=(10, 3))
     for i in range(3):
-        axes[i].imshow(torch.permute(denorm(trainset[i][0]), (1, 2, 0)), cmap='gray' )
+        axes[i].imshow(torch.permute(denorm(trainset[i][0]), (1, 2, 0)))
         
     st.pyplot(fig)
     return(trainloader,testloader,trainset,testset,[-0.4915/0.2470, -0.4823/0.2435, -0.4468/0.2616],[1/0.2470, 1/0.2435, 1/0.2616])

@@ -88,4 +88,4 @@ def train_loop(architecture, input_channels, output_channels,  h, residual_block
         st.write('je suis dans la boucle')
     st.write(f'Epoch {epoch + 1} / {epochs} | Loss: {running_loss / len(trainloader)}')
     running_loss = 0.0
-    return model
+    return(model)

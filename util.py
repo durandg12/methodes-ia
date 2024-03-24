@@ -158,4 +158,4 @@ def afficher_page_modele():
             model = train_loop(Architecture_Pixel, in_channels, out_channels, h, ResidualBlock_CNN, nn.LogSoftmax(), p, optimizer, criterion, device, lr, trainloader, epochs,mean,std )
             print(f"Training with {device} lasts: {np.round((time.time()-start_time)/60,2)} minutes\n")
     else :
-        st.write(f'')
+        st.write(f'v')

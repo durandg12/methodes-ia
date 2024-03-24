@@ -6,20 +6,17 @@ import torch.optim as optim
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-import NN_code
+import model
 
-def viz_im(model, nb, testloader, file = None, architecture, input_channels, output_channels,  h, residual_block, end_activation, p, optimizer, criterion, device, lr, trainloader, n_epochs = 10):
+
+def viz_im(model, architecture, input_channels, output_channels, h, residual_block, p, device):
    """
-      Fonction pour visualiser le résultat des prédictions sur le jeu de données test.
+      Creates and returns 2 lists of images from a testloader: one containing real images, the other containing model predictions.
 
       Parameters
       ----------
       model : nn.Module
          The trained model.
-      nb : int
-         The index of the batch_size on which we want to test our model.
-      testloader : torch.utils.data.DataLoader
-         The test Dataloader.
       architecture : function
          The architecture of the neural network to be trained
       in_channels : int
@@ -30,94 +27,73 @@ def viz_im(model, nb, testloader, file = None, architecture, input_channels, out
          Number of channels in the layers.
       residual_block : function
          The residual block to be used in our architecture, which defines the model.
-      end_activation : torch.nn
-         The activation function to be used at the end of our architecture.
       p : int
          Number of residual blocks.
-         5 if PixelCNN
-         6 if PixelRNN
-      optimizer : torch.optim.optimizer.Optimizer
-         The optimizer to use
-      criterion : nn.modules._Loss
-         The loss function to minimize
       device : string
          The device to use.
-      lr : float
-         The learning rate
-      trainloader : torch.utils.data.DataLoader
-         The train DataLoader
-      n_epochs : int, default = 10
-         Number of epochs to do
-
       
-
       Returns
       -------
+      list1 : tensor
+         List with the true values of each pixel for 4 random testloader images.
+      list2 : tensor
+         List with predictions for each pixel in 4 random testloader images.
    """
+   global trainloader, testloader, trainset, testset, mean, std, dataset
+
+   #Create an instance of the class
+   model = Architecture_Pixel(in_channels, out_channels, h, ResidualBlock_CNN, nn.Softmax(dim=0)).to(device = device)
+
+   if dataset == 'MNIST':
+        model.load_state_dict(torch.load('/PixelCNN_MNIST.pth')) #import model weights
+   else:
+        model.load_state_dict(torch.load('/PixelCNN_CIFAR-10.pth'))
+
+   list1 = []
+   list2 = []
+   rand = torch.randint(0, 625, (4,))
+
+   for i in rand: 
+      image, _ = testset[i]
+
+      #Real image
+      image_true = np.ravel(image.numpy())
+      image_true = image_true.reshape(28, 28)
+
+      list1.append(image_true)
+
+      #Prediction
+      y = model(image.to(device), p)
+      y = torch.reshape(y, (256, 784)) #reshape to get a 1d vector, but it still has the 256 channels
+
+      y_pred = np.zeros(784) #our future image
+
+      for i in range(784):
+         probs = y[:, i]
+         y_pred[i] = torch.multinomial(probs, 1)
    
-   if file != None:
-       #Create an instance of the class
-      model = Architecture_Pixel(in_channels, out_channels, h, ResidualBlock_CNN, nn.Softmax(dim=0)).to(device = device)
-      model.load_state_dict(torch.load('file')) #importation des poids
-       #on our files : h = 5, p = 3, lr = 0.09, optimizer = Adam, epoch = 10/15
-   else :
-       model = train_loop(architecture, input_channels, output_channels,  h, residual_block, end_activation, p, optimizer, criterion, device, lr, trainloader, n_epochs = 10)
+      image_hat = y_pred.reshape(28,28)
+      list2.append(image_hat)
 
-
-   # Génération de l'image
-   batch_image, _ = testloader[nb] #on récupère une image du test set
-   batch_image_true = np.ravel(batch_image.numpy())
-
-# Afficher l'image du test set
-image_true = image_true.reshape(28, 28)
-plt.imshow(image_true, cmap = 'gray')
-plt.title('image du jeu de données')
-plt.show()
+   return(list1, list2)
 
 
 
+def display_images_in_line(image_list, title):
+   """
+      Displays images from a list.
 
-y = model2(image.to(device),p) # on passe l'image en input de notre modèle
-
-#y = torch.round((y.to(device) * STD_MNIST[0] + MEAN_MNIST[0]) * 255)
-print(y.size()) #(256, 28, 28)
-
-y = torch.reshape(y, (256, 784)) # on reshape pour avoir un vecteur 1d représentant l'image, mais ila toujours les 256 channels
-y_pred = np.zeros(784) # numpy 1d qui sera notre soummission avec les bonnes valeurs de pixel
-y2=y
-y=y[:, :].cpu().detach().numpy()#on transforme en numpy
-
-#Pour chaque pixel on ne garde que l'intensité qui a une proba maximal parmi les 256 probas produites par la logsoftmax
-
-for i in range(784) :
-  y_pred[i] = np.argmax(y[:,i])
-
-np.set_printoptions(linewidth = 145, precision = 2)
-
-image_hat = y_pred.reshape(28,28)
-plt.imshow(image_hat, cmap = 'gray')
-plt.title('image prédite avec argmax')
-plt.show()
-
-
-
-# Sampling
-
-sample = np.zeros(784)
-
-for i in range(784):
-        probs = y2[:,i]
-
-
-        indices = torch.multinomial(probs, 1)
-
-        sample[ i] = indices
-
-
-
-
-#On affiche l'image
-image_hat = sample.reshape(28,28)
-plt.imshow(image_hat, cmap = 'gray',vmin=0,vmax=255)
-plt.title('image prédite avec multinomiale')
-plt.show()
+      Parameters
+      ----------
+      image_list : list
+         A list of images to view.
+      title : string
+         The title of the image to view.
+   """
+   fig = plt.figure(figsize=(len(image_list)*2, 2))
+   for i, image_tensor in enumerate(image_list):
+      plt.subplot(1, len(image_list), i+1)
+      plt.imshow(image_tensor.squeeze(), cmap = 'gray')
+      plt.title(title)
+      plt.axis('off')
+   plt.show()

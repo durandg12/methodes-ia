@@ -56,6 +56,7 @@ def train_loop(architecture, input_channels, output_channels,  h, residual_block
     model = architecture(input_channels, output_channels, h, residual_block, end_activation).to(device = device)
     optimizer = optimizer(model.parameters(), lr = lr)
     st.write("l'entraînement a commencé")
+    progress_bar = st.progress(0)  # Initialize the progress bar
     for epoch in range(epochs ):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, (x,y) in enumerate(trainloader):
@@ -84,8 +85,9 @@ def train_loop(architecture, input_channels, output_channels,  h, residual_block
             optimizer.step()
 
             running_loss += loss.item()
-
-        st.write('je suis dans la boucle')
+            progress = (epoch + 1) / epochs
+        progress_bar.progress(progress)  # Update the progress bar
+        
     st.write(f'Epoch {epoch + 1} / {epochs} | Loss: {running_loss / len(trainloader)}')
     running_loss = 0.0
-    return model
+    return(model)

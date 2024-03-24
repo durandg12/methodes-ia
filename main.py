@@ -1,4 +1,4 @@
-from util import  load_show_mnist, load_show_cifar10, afficher_page_accueil, afficher_choix_jeux_de_donnees, afficher_page_modele
+from util import  load_show_mnist, load_show_cifar10, afficher_page_accueil, afficher_choix_jeux_de_donnees, afficher_train_page_modele
 import streamlit as st
 import numpy as np
 
@@ -22,8 +22,8 @@ def main() :
         afficher_choix_jeux_de_donnees()
 
     elif section == 'Modèle':
-        afficher_page_modele()
-
+        model = afficher_train_page_modele()
+        
     
 
 if __name__ == "__main__":

@@ -4,7 +4,11 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import streamlit as st
 import numpy as np
-
+import torch.nn as nn
+import torch.optim as optim
+import time
+from train import train_loop
+from model import Architecture_Pixel,ResidualBlock_CNN
 
 
 def load_show_mnist( ):
@@ -100,9 +104,6 @@ def afficher_page_accueil():
 def afficher_choix_jeux_de_donnees():
     global trainloader, testloader, trainset, testset, mean, std,dataset
 
-    st.title('Jeux de données et visualisation')
-    st.write(' vous pouvez choisir le jeu de données à explorer.')
-
     st.title('Choix du jeu de données et affichage d\'images')
 
     # Sélection du jeu de données
@@ -120,14 +121,41 @@ def afficher_page_modele():
     global trainloader, testloader, trainset, testset, mean, std,dataset
     
     st.title('Pixel CNN')
-       
+    criterion = nn.NLLLoss()
+    optimizer = optim.Adam
+    if dataset == 'MNIST' : 
+        in_channels = 1 
+        out_channels = 256
+    else : 
+        in_channels = 3 
+        out_channels = 3*256
     # Afficher les valeurs des variables globales
     st.write(f'Vous avez choisi le jeu de données {dataset}')
-    st.write(f"mean: {mean}")
-    st.write(f"std: {std}")
-
-    st.write('Dans cette section, vous pouvez entraîner un modèle génératif cnnpixel ')
-    # Ajoutez le code pour l'entraînement du modèle en utilisant trainloader, testloader, trainset, testset, mean et std
-    
+    st.write(' Voulez vous utiliser notre mmodèles déjà entrainer ou voulez vous entrainer le votre')
 
 
+    # Options pour l'utilisateur
+    option = st.radio("Choisissez une option :", ( "Utiliser un modèle pré-entraîné","Entraîner un nouveau modèle"))
+    if option == "Entraîner un nouveau modèle" :
+
+        # Interface pour définir les paramètres d'entraînement
+        epochs = st.slider("Nombre d'époques :", min_value=1, max_value=100, value=10, step=1)
+        h = st.slider("Nombre de neurones :", min_value=1, max_value=128, value=5, step=1)
+        lr = st.slider("Taux d'apprentissage :", min_value=0.001, max_value=0.1, value=0.01, step=0.001)
+        p = st.slider("Nombre de blocs résiduels : ", min_value=1, max_value=8, value=2, step=1)
+                 
+        use_cuda = st.checkbox("Utiliser CUDA si disponible pour l'entraînement des modèles")
+
+        if use_cuda and torch.cuda.is_available():
+            device = torch.device("cuda")
+            st.write("Entraînement des modèles sur CUDA.")
+        else:
+            device = torch.device("cpu")
+            st.write(" Entraînement des modèles sur CPU.")
+        go =st.checkbox("Commencer l'entraînement")
+        if go:
+            start_time = time.time()
+            model = train_loop(Architecture_Pixel, in_channels, out_channels, h, ResidualBlock_CNN, nn.LogSoftmax(), p, optimizer, criterion, device, lr, trainloader, epochs,mean,std )
+            print(f"Training with {device} lasts: {np.round((time.time()-start_time)/60,2)} minutes\n")
+    else :
+        st.write(f'')

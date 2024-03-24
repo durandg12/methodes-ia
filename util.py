@@ -196,6 +196,7 @@ def afficher_train_page_modele(device):
         model.load_state_dict(torch.load(file_weight, map_location=torch.device(device)))  #import model weights
         
         st.title('Visualisation de nos résultats')
+        #affiche des images du testest et les prédictions 
         l1, l2 = viz_im(model,p,device)
         display_images_in_line(l1,'image réelle')
         display_images_in_line(l2,'image prédite')
@@ -271,9 +272,5 @@ def display_images_in_line(image_list, title):
       plt.title(title)
       plt.axis('off')
    st.pyplot(fig)
-
-   
-def afficher_visualisation(model,p,device):
-    global trainloader, testloader, trainset, testset, mean, std,dataset
     
                  

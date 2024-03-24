@@ -1,4 +1,4 @@
-from util import  afficher_page_accueil, afficher_choix_jeux_de_donnees, afficher_train_page_modele, afficher_visualisation
+from util import  afficher_page_accueil, afficher_choix_jeux_de_donnees, afficher_train_page_modele
 import streamlit as st
 import numpy as np
 import torch

@@ -117,7 +117,7 @@ def afficher_choix_jeux_de_donnees():
         st.write('Chargement du jeu de données CIFAR-10...')
         trainloader,testloader,trainset,testset,mean,std = load_show_cifar10()
     
-def afficher_page_modele():
+def afficher_train_page_modele():
     global trainloader, testloader, trainset, testset, mean, std,dataset
     
     st.title('Pixel CNN')
@@ -126,9 +126,11 @@ def afficher_page_modele():
     if dataset == 'MNIST' : 
         in_channels = 1 
         out_channels = 256
+        file_name = 'user_PixelCNN_MNIST.pth'
     else : 
         in_channels = 3 
         out_channels = 3*256
+        file_name = 'user_PixelCNN_CIFAR-10.pth'
     # Afficher les valeurs des variables globales
     st.write(f'Vous avez choisi le jeu de données {dataset}')
     st.write(' Voulez vous utiliser notre mmodèles déjà entrainer ou voulez vous entrainer le votre')
@@ -156,6 +158,15 @@ def afficher_page_modele():
         if go:
             start_time = time.time()
             model = train_loop(Architecture_Pixel, in_channels, out_channels, h, ResidualBlock_CNN, nn.LogSoftmax(), p, optimizer, criterion, device, lr, trainloader, epochs,mean,std )
-            print(f"Training with {device} lasts: {np.round((time.time()-start_time)/60,2)} minutes\n")
-    else :
-        st.write(f'')
+            
+            st.write(f"Training with {device} lasts: {np.round((time.time()-start_time)/60,2)} minutes\n")
+            # Enregistrer l'architecture et les poids du modèle
+            torch.save(model.state_dict(), file_name)
+            #Create an instance of the class
+            model = Architecture_Pixel(in_channels, out_channels, h, ResidualBlock_CNN, nn.Softmax(dim=0)).to(device = device)
+            
+            model.load_state_dict(torch.load(file_name)) #import model weights
+            return(model)
+
+        else :
+            st.write(f'v')

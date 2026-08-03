@@ -28,3 +28,9 @@ yolov3*
 
 # Documentation
 build
+
+# LaTeX
+*.aux
+*.log
+*.pdf
+*.synctex.gz

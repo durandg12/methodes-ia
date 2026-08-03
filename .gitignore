@@ -34,3 +34,4 @@ build
 *.log
 *.pdf
 *.synctex.gz
+diff.tex
